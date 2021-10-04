@@ -42,6 +42,11 @@ return [
             'visibility' => 'public',
         ],
 
+        'memes' => [
+            'driver' => 'local',
+            'root' => public_path('memes'),
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

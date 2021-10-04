@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Repositories\AuthenticateRepository;
+use App\Repositories\ImageUploadRepository;
 use App\Repositories\Interfaces\AuthenticateRepositoryInterface;
+use App\Repositories\Interfaces\ImageUploadRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
@@ -18,6 +20,7 @@ class RepositoryServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(AuthenticateRepositoryInterface::class, AuthenticateRepository::class);
+        $this->app->bind(ImageUploadRepositoryInterface::class, ImageUploadRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
     }
 

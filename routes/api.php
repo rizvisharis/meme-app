@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthenticateController;
+use App\Http\Controllers\ImageUploadController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,7 +21,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')
     ->group(function () {
-        Route::post('/login', [AuthenticateController::class,'login']);
-        Route::post('/forgot-password', [AuthenticateController::class,'forgotPassword']);
-        Route::post('/password-reset', [AuthenticateController::class,'passwordReset']);
+        Route::post('/login', [AuthenticateController::class, 'login']);
+        Route::post('/forgot-password', [AuthenticateController::class, 'forgotPassword']);
+        Route::post('/password-reset', [AuthenticateController::class, 'passwordReset']);
+    });
+
+Route::prefix('image')
+    ->group(function () {
+        Route::post('/', [ImageUploadController::class, 'store'])->middleware('auth:sanctum');
+        Route::get('/', [ImageUploadController::class, 'index']);
+        Route::put('/', [ImageUploadController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/', [ImageUploadController::class, 'delete'])->middleware('auth:sanctum');
     });
