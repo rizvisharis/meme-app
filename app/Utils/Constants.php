@@ -51,4 +51,14 @@ class Constants
         'activate' => 'Account activation',
         'forgotPassword' => 'Password reset',
     ];
+
+    public static $PAGINATION_PAGE_PARAM = 'api/v1/';
+
+    public static $CATEGORY = [
+        'famous' => 'Famous',
+        'comments' => 'Comments',
+        'movies' => 'Movies',
+        'comedians' => 'Comedians',
+        'actors' => 'Actors',
+    ];
 }

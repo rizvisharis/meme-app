@@ -28,12 +28,13 @@ class ImageUploadRepository implements ImageUploadRepositoryInterface
         ]);
     }
 
-    public function update($requestData, $id)
+    public function update($data)
     {
+         $data->save();
     }
 
     public function delete($data)
     {
-        return $data->delete();
+         $data->delete();
     }
 }

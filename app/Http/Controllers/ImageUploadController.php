@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\Interfaces\ImageUploadServiceInterface;
+use App\Utils\Constants;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -100,7 +101,7 @@ class ImageUploadController extends Controller
                 'name' => 'required|min:2|max:255',
                 'tag' => 'required|array|min:2|max:255',
                 'tag.*' => 'required|distinct|min:2|max:255',
-                'category' => 'required',
+                'category' => 'required|in:' . implode(',', array_keys(Constants::$CATEGORY)),
                 'image' => 'required',
             ]);
             $request = $request->only([
@@ -119,9 +120,86 @@ class ImageUploadController extends Controller
 
     }
 
+    /**
+     * Get Images.
+     * @OA\Get(
+     *   tags={"Image"},
+     *   path="/image",
+     *   @OA\Parameter(
+     *          name="category",
+     *          description="the meme's category",
+     *          required=false,
+     *          in="query",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *   @OA\Parameter(
+     *          name="search",
+     *          description="Records per page",
+     *          required=false,
+     *          in="query",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="page-size",
+     *          description="Records per page",
+     *          required=false,
+     *          in="query",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *   @OA\Response(
+     *     response="200",
+     *     description="Succesfully get all images",
+     *     @OA\JsonContent()
+     *   ),
+     *   @OA\Response(
+     *          response=401,
+     *          description="unauthorized",
+     *     ),
+     *   @OA\Response(
+     *          response=403,
+     *          description="access denied",
+     *     ),
+     *   @OA\Response(
+     *          response=404,
+     *          description="not found",
+     *     ),
+     *   @OA\Response(
+     *          response=422,
+     *          description="unprocessable entity",
+     *     ),
+     *   @OA\Response(
+     *          response=500,
+     *          description="internal server error",
+     *     ),
+     *     security={{ "apiAuth": {} }}
+     * )
+     */
     public function index(Request $request)
     {
-
+        try {
+            $request->validate([
+                'category' => 'sometimes|in:' . implode(',', array_keys(Constants::$CATEGORY)),
+                'search' => 'sometimes',
+                'page-size' => 'sometimes|integer|gt:0'
+            ]);
+            $request = $request->only([
+                'category',
+                'search',
+                'page-size',
+            ]);
+            $images = $this->imageService->index($request);
+            return $this->successResponse($images, "images got successfully");
+        } catch (ValidationException $validationException) {
+            return $this->validationErrorResponse($validationException);
+        } catch (Exception $exception) {
+            return $this->exceptionErrorResponse($exception);
+        }
     }
 
     public function update(Request $request)
