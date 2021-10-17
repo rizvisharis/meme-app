@@ -53,7 +53,8 @@ class ImageUploadController extends Controller
      *          @OA\Schema(
      *              type="array",
      *              @OA\Items(
-     *                  format="string"
+     *                  format="string",
+     *                  example=""
      *              )
      *          )
      *      ),
@@ -99,10 +100,10 @@ class ImageUploadController extends Controller
         try {
             $request->validate([
                 'name' => 'required|min:2|max:255',
-                'tag' => 'required|array|min:2|max:255',
+                'tag' => 'required|array|min:1|max:5',
                 'tag.*' => 'required|distinct|min:2|max:255',
                 'category' => 'required|in:' . implode(',', array_keys(Constants::$CATEGORY)),
-                'image' => 'required',
+                'image' => 'required|image',
             ]);
             $request = $request->only([
                 'name',
@@ -117,7 +118,6 @@ class ImageUploadController extends Controller
         } catch (Exception $exception) {
             return $this->exceptionErrorResponse($exception);
         }
-
     }
 
     /**
@@ -176,8 +176,7 @@ class ImageUploadController extends Controller
      *   @OA\Response(
      *          response=500,
      *          description="internal server error",
-     *     ),
-     *     security={{ "apiAuth": {} }}
+     *     )
      * )
      */
     public function index(Request $request)
@@ -202,13 +201,167 @@ class ImageUploadController extends Controller
         }
     }
 
-    public function update(Request $request)
+    /**
+     * update a Image.
+     * @OA\Post (
+     *   tags={"Image"},
+     *   path="/image/{id}",
+     *     @OA\Parameter(
+     *          name="id",
+     *          description="the image's id ",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *     @OA\RequestBody(
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     description="the meme's image",
+     *                     property="image",
+     *                     type="string",
+     *                     format="binary"
+     *                 ),
+     *             )
+     *         )
+     *      ),
+     *     @OA\Parameter(
+     *          name="name",
+     *          description="the meme's name",
+     *          required=false,
+     *          in="query",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="tag[]",
+     *          description="the meme image tag",
+     *          required=false,
+     *          in="query",
+     *          @OA\Schema(
+     *              type="array",
+     *              @OA\Items(
+     *                  format="string",
+     *                  example=""
+     *              )
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="category",
+     *          description="the user's phone number",
+     *          required=false,
+     *          in="query",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *   @OA\Response(
+     *     response="200",
+     *     description="Succesfully upload image",
+     *     @OA\JsonContent()
+     *   ),
+     *   @OA\Response(
+     *          response=401,
+     *          description="unauthorized",
+     *     ),
+     *   @OA\Response(
+     *          response=403,
+     *          description="access denied",
+     *     ),
+     *   @OA\Response(
+     *          response=404,
+     *          description="not found",
+     *     ),
+     *   @OA\Response(
+     *          response=422,
+     *          description="unprocessable entity",
+     *     ),
+     *   @OA\Response(
+     *          response=500,
+     *          description="internal server error",
+     *     ),
+     *     security={{ "apiAuth": {} }}
+     * )
+     */
+    public function update(Request $request, $id)
     {
-
+        try {
+            $request->validate([
+                'name' => 'sometimes|min:2|max:255',
+                'tag' => 'sometimes|array|max:5',
+                'tag.*' => 'distinct|min:2|max:255',
+                'category' => 'sometimes|in:' . implode(',', array_keys(Constants::$CATEGORY)),
+                'image' => 'sometimes',
+            ]);
+            $request = $request->only([
+                'name',
+                'tag',
+                'category',
+                'image',
+            ]);
+            $image = $this->imageService->update($request,$id);
+            return $this->successResponse($image, 'Image update successfully');
+        } catch (ValidationException $validationException) {
+            return $this->validationErrorResponse($validationException);
+        } catch (Exception $exception) {
+            return $this->exceptionErrorResponse($exception);
+        }
     }
-
-    public function delete(Request $request)
+    /**
+     * delete the image.
+     * @OA\Delete(
+     *   tags={"Image"},
+     *   path="/image/{id}",
+     *   @OA\Parameter(
+     *          name="id",
+     *          description="the image id ",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *   @OA\Response(
+     *     response="200",
+     *     description="hub delete successfully",
+     *     @OA\JsonContent()
+     *   ),
+     *   @OA\Response(
+     *          response=401,
+     *          description="unauthorized",
+     *     ),
+     *   @OA\Response(
+     *          response=403,
+     *          description="access denied",
+     *     ),
+     *   @OA\Response(
+     *          response=404,
+     *          description="not found",
+     *     ),
+     *   @OA\Response(
+     *          response=422,
+     *          description="unprocessable entity",
+     *     ),
+     *   @OA\Response(
+     *          response=500,
+     *          description="internal server error",
+     *     ),
+     *     security={{ "apiAuth": {} }}
+     * )
+     */
+    public function delete($id)
     {
-
+        try {
+            $image = $this->imageService->delete($id);
+            return $this->successResponse($image, 'image delete successfully');
+        } catch (ValidationException $validationException) {
+            return $this->validationErrorResponse($validationException);
+        } catch (Exception $exception) {
+            return $this->exceptionErrorResponse($exception);
+        }
     }
 }

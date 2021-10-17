@@ -10,7 +10,7 @@ use Illuminate\Routing\Controller as BaseController;
  *      version="1.0.0",
  *      title="MEME App Api Documentation",
  *      @OA\Contact(
- *          email="rizvisharis@gmail.com"
+ *          email="rizvisharis7@gmail.com"
  *      ),
  * )
  * @OA\Tag(

@@ -8,7 +8,7 @@ interface ServiceInterface
 
     public function index($requestData);
 
-    public function update($data);
+    public function update($requestData, $id);
 
     public function delete($id);
 }

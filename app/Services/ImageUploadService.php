@@ -6,7 +6,9 @@ use App\Http\Resources\ImageResource;
 use App\Repositories\Interfaces\ImageUploadRepositoryInterface;
 use App\Services\Interfaces\ImageUploadServiceInterface;
 use App\Traits\UtilTraits;
+use App\Utils\Constants;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 
 class ImageUploadService implements ImageUploadServiceInterface
 {
@@ -65,14 +67,40 @@ class ImageUploadService implements ImageUploadServiceInterface
         }
     }
 
-    public function update($data)
+    public function update($requestData, $id)
     {
-        // TODO: Implement update() method.
+        try {
+            $image = $this->imageUploadRepository->find($id);
+            if (!$image)
+                throw new Exception(Constants::$ERROR_MESSAGE['id_not_exist'], Constants::$ERROR_CODE['not_found']);
+
+            if (isset($requestData['name'])) $image->name = $requestData['name'];
+            if (isset($requestData['tag'])) $image->tag = $requestData['tag'];
+            if (isset($requestData['category'])) $image->category = $requestData['category'];
+            if (isset($requestData['image'])) $image->image = $this->saveImage($requestData['image'],
+                $requestData['category'] ?? $image->category);
+            $this->imageUploadRepository->update($image);
+            $updatedImage = $this->imageUploadRepository->find($id);
+            return new ImageResource($updatedImage);
+        } catch (Exception $exception) {
+            throw $exception;
+        }
     }
 
     public function delete($id)
     {
-        // TODO: Implement delete() method.
+        try {
+            $image = $this->imageUploadRepository->find($id);
+            if (!$image)
+                throw new Exception(Constants::$ERROR_MESSAGE['id_not_exist'], Constants::$ERROR_CODE['not_found']);
+            $this->imageUploadRepository->delete($image);
+            Storage::disk('memes')->delete(substr($image->image,6));
+            $condition = [['_id', $id]];
+            $deletedImage = $this->imageUploadRepository->get($condition)->onlyTrashed()->first();
+            return new ImageResource($deletedImage);
+        } catch (Exception $exception) {
+            throw $exception;
+        }
     }
 
     private function saveThumbnail($data, $category)

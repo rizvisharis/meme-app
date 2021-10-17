@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Resources\UserResource;
 use App\Services\Interfaces\AuthenticateServiceInterface;
 use App\Utils\Constants;
 use Exception;
@@ -16,7 +17,7 @@ class AuthenticateService implements AuthenticateServiceInterface
 
             return [
                 'token' => auth()->user()->createToken(auth()->user()->first_name)->plainTextToken,
-                'user' => auth()->user()
+                'user' => new UserResource(auth()->user())
             ];
         } catch (Exception $exception) {
             throw $exception;

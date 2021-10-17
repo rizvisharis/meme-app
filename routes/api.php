@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthenticateController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ImageUploadController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,11 @@ Route::prefix('image')
     ->group(function () {
         Route::post('/', [ImageUploadController::class, 'store'])->middleware('auth:sanctum');
         Route::get('/', [ImageUploadController::class, 'index']);
-        Route::put('/', [ImageUploadController::class, 'update'])->middleware('auth:sanctum');
-        Route::delete('/', [ImageUploadController::class, 'delete'])->middleware('auth:sanctum');
+        Route::post('/{id}', [ImageUploadController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{id}', [ImageUploadController::class, 'delete'])->middleware('auth:sanctum');
+    });
+
+Route::prefix('category')
+    ->group(function () {
+        Route::get('/', [CategoryController::class, 'index']);
     });

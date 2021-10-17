@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Utils\Constants;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ImageResource extends JsonResource
@@ -21,7 +22,8 @@ class ImageResource extends JsonResource
             'tag' => $this->tag,
             'category' => $this->category,
             'image' => $this->image,
-            'thumbnail' => $this->thumbnail,
+//            'thumbnail' => $this->thumbnail, //Todo not required this sprint
+            'status' => $this->deleted_at ? Constants::$STATUS['inactive'] : Constants::$STATUS['active'],
         ];
     }
 }
