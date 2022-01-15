@@ -44,6 +44,7 @@ class AuthenticateController extends Controller
      *   @OA\Response(
      *     response="200",
      *     description="Succesfully user login",
+     *     @OA\JsonContent()
      *   ),
      *   @OA\Response(
      *          response=401,
