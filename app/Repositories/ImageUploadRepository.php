@@ -5,36 +5,10 @@ namespace App\Repositories;
 use App\Models\Image;
 use App\Repositories\Interfaces\ImageUploadRepositoryInterface;
 
-class ImageUploadRepository implements ImageUploadRepositoryInterface
+class ImageUploadRepository extends BasicRepository implements ImageUploadRepositoryInterface
 {
-    public function get($condition = null)
+    public function __construct(Image $image)
     {
-        return Image::where($condition);
-    }
-
-    public function find($id)
-    {
-        return Image::find($id);
-    }
-
-    public function create($requestData)
-    {
-        return Image::create([
-            'name' => $requestData['name'],
-            'tag' => $requestData['tag'],
-            'category' => $requestData['category'],
-            'image' => $requestData['image'],
-            'thumbnail' => $requestData['thumbnail'] ?? null,
-        ]);
-    }
-
-    public function update($data)
-    {
-         $data->save();
-    }
-
-    public function delete($data)
-    {
-         $data->delete();
+        $this->model = $image;
     }
 }
