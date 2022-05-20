@@ -17,6 +17,11 @@ class ImageUploadController extends Controller
         $this->imageService = $imageService;
     }
 
+    public function create()
+    {
+        return view('admin.create');
+    }
+
     /**
      * upload a Image.
      * @OA\Post(
@@ -100,8 +105,8 @@ class ImageUploadController extends Controller
         try {
             $request->validate([
                 'name' => 'required|min:2|max:255',
-                'tag' => 'required|array|min:1|max:5',
-                'tag.*' => 'required|distinct|min:2|max:255',
+//                'tag' => 'required|array|min:1|max:5',
+//                'tag.*' => 'required|distinct|min:2|max:255',
                 'category' => 'required|in:' . implode(',', array_keys(Constants::$CATEGORY)),
                 'image' => 'required|image',
             ]);
@@ -111,8 +116,9 @@ class ImageUploadController extends Controller
                 'category',
                 'image',
             ]);
-            $image = $this->imageService->store($request);
-            return $this->successResponse($image, 'Image upload successfully');
+            $this->imageService->store($request);
+            return redirect('/')->with('flash_message', 'Image Upload Successfully!');
+//            return $this->successResponse($image, 'Image upload successfully');
         } catch (ValidationException $validationException) {
             return $this->validationErrorResponse($validationException);
         } catch (Exception $exception) {
@@ -187,13 +193,21 @@ class ImageUploadController extends Controller
                 'search' => 'sometimes',
                 'page-size' => 'sometimes|integer|gt:0'
             ]);
+
             $request = $request->only([
                 'category',
                 'search',
                 'page-size',
             ]);
+
             $images = $this->imageService->index($request);
-            return $this->successResponse($images, "images got successfully");
+
+            if (\Request::is('api/*')) {
+                return $this->successResponse($images, "images got successfully");
+            }
+
+            return view('admin.index')->with('images', $images['images']);
+
         } catch (ValidationException $validationException) {
             return $this->validationErrorResponse($validationException);
         } catch (Exception $exception) {
@@ -303,7 +317,7 @@ class ImageUploadController extends Controller
                 'category',
                 'image',
             ]);
-            $image = $this->imageService->update($request,$id);
+            $image = $this->imageService->update($request, $id);
             return $this->successResponse($image, 'Image update successfully');
         } catch (ValidationException $validationException) {
             return $this->validationErrorResponse($validationException);
@@ -311,6 +325,7 @@ class ImageUploadController extends Controller
             return $this->exceptionErrorResponse($exception);
         }
     }
+
     /**
      * delete the image.
      * @OA\Delete(

@@ -42,26 +42,34 @@ class ImageUploadService implements ImageUploadServiceInterface
     public function index($requestData)
     {
         try {
+
             if (isset($requestData['category'])) {
                 $condition = [
                     ['category', $requestData['category']]
                 ];
+
                 $images = $this->imageUploadRepository->get($condition);
+
             } else {
                 $images = $this->imageUploadRepository->get();
             }
+
             if (isset($requestData['search'])) {
                 $condition = [
                     ['tag', 'like', '%' . $requestData['search'] . '%']
                 ];
+
                 $images = $this->imageUploadRepository->get($condition);
             }
+
             $images->latest();
             $query = $images->paginate(isset($requestData['page-size']) ? (int)$requestData['page-size'] : 10);
+
             return [
                 'images' => ImageResource::collection($query),
                 'page_info' => $this->getPaginateInfo($query)
             ];
+
         } catch (Exception $exception) {
             throw $exception;
         }
